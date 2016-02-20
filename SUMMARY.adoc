@@ -1,0 +1,13 @@
+= 目录
+
+. link:README.adoc[介绍]
+. link:testing/README.adoc[自动测试]
+.. link:testing/introduction.adoc[介绍]
+.. link:testing/test-nginx.adoc[Test::Nginx]
+.. link:testing/test-suite-layout.adoc[测试套件组织]
+.. link:testing/test-file-layout.adoc[测试文件组织]
+.. link:testing/running-tests.adoc[执行测试]
+.. link:testing/preparing-tests.adoc[准备测试]
+.. link:testing/testing-erroneous-cases.adoc[测试错误情况]
+.. link:testing/test-modes.adoc[测试模式]
+.. link:testing/advanced-topics.adoc[高级主题]
