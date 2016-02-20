@@ -1,24 +1,14 @@
 = OpenResty 编程
 
-This is an official guide on OpenResty programming written by the OpenResty creator.
-This book is still in preparation. Please check back often for updates.
 这是一个由 OpenResty 作者编写的 OpenResty 编程指南。本书还在准备中，请定期检查更新。
 
-The entire Programming OpenResty book, written by Yichun Zhang, is available
-here. All content is licensed under the link:http://creativecommons.org/licenses/by-nc-sa/3.0/[Creative
-Commons Attribution Non Commercial Share Alike 3.0 license]. You can download
-or browse the rendered book in various different formats on the GitBook
-website below.
-整部 OpenResty 编程书籍，由章亦春书写。所有内容授权使用 link:http://creativecommons.org/licenses/by-nc-sa/3.0/[Creative
-Commons Attribution Non Commercial Share Alike 3.0] 协议。你可以自由下载或阅读 GitBook 网站二次渲染的不同格式书籍。
+整部 OpenResty 编程书籍，由章亦春书写。所有内容授权使用 link:http://creativecommons.org/licenses/by-nc-sa/3.0/[Creative Commons Attribution Non Commercial Share Alike 3.0] 协议。你可以自由下载或阅读 GitBook 网站二次渲染的不同格式书籍。
 
 
 https://www.gitbook.com/book/openresty/programming-openresty/
 
 该书的最新版本可以在下面 GitHub 仓库找到：
-The latest source of the book can be found in the following GitHub repository:
 
 https://github.com/openresty/programming-openresty
 
 随时欢迎大家 PR 内容。
-Pull requests are always welcome.
