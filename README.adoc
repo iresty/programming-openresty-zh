@@ -1,6 +1,6 @@
 = OpenResty 编程
 
-这是一个由 OpenResty 作者编写的 OpenResty 编程指南。本书还在准备中，请定期检查更新。
+这是一个由 OpenResty 作者本人书写的 OpenResty 编程指南。本书还在准备中，请定期检查更新。
 
 整部 OpenResty 编程书籍，由章亦春书写。所有内容授权使用 link:http://creativecommons.org/licenses/by-nc-sa/3.0/[Creative Commons Attribution Non Commercial Share Alike 3.0] 协议。你可以自由下载或阅读 GitBook 网站二次渲染的不同格式书籍。
 
