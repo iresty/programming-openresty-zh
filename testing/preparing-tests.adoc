@@ -1,11 +1,8 @@
 == 测试前的准备
 
-As we have seen in the previous sections, `Test::Nginx` provides a simple
-declarative format to express test cases. Each test case is represented
-by a test block. A test block consists of a title, an optional description,
-and several data sections for specifying inputs and expected outputs. In
-this section, we will have a close look at how to prepare such test cases
-for different test requirements.
+正如我们上个章节里面看到的， `Test::Nginx` 提供了一个简单规范的格式来表达测试用例。
+每个测试用例都用一个测试块来表示。一个测试块由一个标题、一个可选的描述和几个数据段，
+用于指定输入和期望的输出。在这一节我们将仔细看看对于不同的测试要求，如何准备这样的测试案例。
 
 Designing test cases is an art, in many ways. It may, sometimes, take even
 more time and effort than implementing the feature to be tested, according
