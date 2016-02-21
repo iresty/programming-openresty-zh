@@ -3,8 +3,7 @@
 自动化测试在软件开发和维护中起着重要的作用。
 OpenResty 提供了一个数据驱动的测试框架，可以为 NGINX C 模块、Lua 库、甚至 OpenResty 应用，编写声明式测试用例。
 测试用例是以一种规范的格式写成的，既有直观的可读性和可维护性，也易于机器的处理。
-数据驱动的方法使的在不同的情况下，
-OpenResty provides a data-driven test scaffold for writing declarative test cases for NGINX C modules, Lua libraries, and even OpenResty applications. The test cases are written in a specification-like format, which is both intuitive to read and write for humans and also easy to handle for machines. The data-driven approach makes it easy to run the same tests in wildly different ways that can help expose issues in different scenarios or with different kinds of external tools.
+数据驱动的方法可以让同样的测试用例集，用各种完全不同的方式运行。这样有利于在不同的场景下，或者配合外部的各种工具，暴露出问题。
 
 This chapter introduces the `Test::Nginx` test scaffold that has been widely used to organize test suites for almost all the OpenResty components, including the `ngx_http_lua` module, most of the `lua-resty-*` Lua libraries, as well as full-blown business applications like CloudFlare's Lua CDN and Lua SSL.
 
