@@ -5,6 +5,8 @@ OpenResty 提供了一个数据驱动的测试框架，可以为 NGINX C 模块�
 测试用例是以一种规范的格式写成的，既有直观的可读性和可维护性，也易于机器的处理。
 数据驱动的方法可以让同样的测试用例集，用各种完全不同的方式运行。这样有利于在不同的场景下，或者配合外部的各种工具，暴露出问题。
 
-This chapter introduces the `Test::Nginx` test scaffold that has been widely used to organize test suites for almost all the OpenResty components, including the `ngx_http_lua` module, most of the `lua-resty-*` Lua libraries, as well as full-blown business applications like CloudFlare's Lua CDN and Lua SSL.
+这个章节介绍的 `Test::Nginx` 测试框架，在几乎所有的 OpenResty 组件中都广泛的用于组织测试套件，
+包括 `ngx_http_lua` 模块，大部分的 `lua-resty-*` Lua 库，
+以及像 CloudFlare 的 Lua CDN 和 Lua SSL 这样成熟的商业应用。
 
-*Keywords:* Testing, Mocking
+*关键字:* 测试（Testing）, 模拟（Mocking）
