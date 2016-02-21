@@ -1,4 +1,4 @@
-== Preparing Tests
+== 测试前的准备
 
 As we have seen in the previous sections, `Test::Nginx` provides a simple
 declarative format to express test cases. Each test case is represented
