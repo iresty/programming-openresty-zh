@@ -4,9 +4,8 @@
 每个测试用例都用一个测试块来表示。一个测试块由一个标题、一个可选的描述和几个数据段，
 用于指定输入和期望的输出。在这一节我们将仔细看看对于不同的测试要求，如何准备这样的测试案例。
 
-Designing test cases is an art, in many ways. It may, sometimes, take even
-more time and effort than implementing the feature to be tested, according
-to our own experience. `Test::Nginx` tries hard to make writing tests as
+设计测试用例在很多方面都是一门艺术。有时候可能设计测试案例花费的时间和精力，多于实现要测试的功能，
+这个和我们自己的经验有关。`Test::Nginx` tries hard to make writing tests as
 simple as possible but it still cannot automate the whole test case design
 process. Only you know exactly what to test and how it can be tested anyway.
 This section will focus on the basic primitives provided by `Test::Nginx`
