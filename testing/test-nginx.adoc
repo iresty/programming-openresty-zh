@@ -1,18 +1,18 @@
 == Test::Nginx
 
-link:https://metacpan.org/pod/Test::Nginx[Test::Nginx] 是一个测试框架，可以驱动运行在 NGINX 上的任何测试用例代码，同样也可以是 NGINX 的内核代码。它使用 Perl 语言编写，数年时间的积累，使得它有丰富的测试设备，以及完整的周边工具链。更进一步，使用者都不需要知道这些测试用例框架是用 Perl 书写的，`Test::Nginx` 提供了一些简单符号来表达当前测试用例，并把它们用一种规范格式组织起来。
+link:https://metacpan.org/pod/Test::Nginx[Test::Nginx] 是一个测试框架，可以驱动运行 NGINX 上的任何测试用例代码，自然也可以是 NGINX 的内核代码。使用 Perl 语言编写，因为近数年时间的积累，有丰富的测试设备，以及完整的周边工具链。更进一步，使用者都不需要知道这些测试用例框架是用 Perl 书写的，`Test::Nginx` 提供了一些简单符号来表达当前测试用例，并把它们用一种规范格式组织起来。
 
-这种简单测试规范格式或称小语言，使得`Test::Nginx` 的更像是 Perl 世界里 link:https://metacpan.org/pod/distribution/Test-Base/lib/Test/Base.pod[Test::Base] 测试模块提供的各种通用测试语言的一种方言。事实上，用面向对象的角度看，`Test::Nginx` 是 `Test::Base` 子类。这就意味着 `Test::Base` 提供的所有特性在 `Test::Nginx` 都是可用的，`Test::Nginx` 提供更易用的原语和符号，用来简化 NGINX 和 OpenResty 环境的测试。 `Test::Base` 的核心理念，是基于 `Test::Base` 的测试系统可以被不同项目广泛、有效的使用，甚至包括 Haskell 编程和 Linux 内核模块。`Test::Nginx` 只是我们为了 NGINX 和 OpenResty 世界创造的例子。有关 `Test::Base` 框架自身的详细讨论，已经超过了这本书的范畴，但在后续章节中，我们还将介绍 `Test::Nginx` 继承下来有关 `Test::Base` 的重要特性。
+这种简单测试规范格式或称小语言，使得 `Test::Nginx` 的更像是 Perl 世界里 link:https://metacpan.org/pod/distribution/Test-Base/lib/Test/Base.pod[Test::Base] 测试模块提供的各种通用测试语言中的一种方言。事实上，用面向对象的角度看，`Test::Nginx` 是 `Test::Base` 子类。这就意味着 `Test::Base` 提供的所有特性在 `Test::Nginx` 都是可用的，`Test::Nginx` 提供更易用的原语和符号，用来简化 NGINX 和 OpenResty 环境的测试。 `Test::Base` 的核心理念，是基于 `Test::Base` 的测试系统可以被广泛、有效的使用，甚至包括 Haskell 编程和 Linux 内核模块。`Test::Nginx` 只是我们为了 NGINX 和 OpenResty 测试创造的例子。有关 `Test::Base` 框架自身的详细讨论，已经超过了这本书的范畴，但在后续章节中，我们还将介绍 `Test::Nginx` 继承下来有关 `Test::Base` 的重要特性。
 
-`Test::Nginx` 通过 link:http://www.cpan.org/[CPAN] 发行，CPAN（Comprehensive
-Perl Archive Network），与其他大多数 Perl 的库一样。如果在你的系统中已经安装了 `perl` （大多数 Linux 版本已经默认包含了 `perl`），这时你可以使用下面简单命令完成安装：
+`Test::Nginx` 通过 link:http://www.cpan.org/[CPAN] （Comprehensive
+Perl Archive Network）发行，与其他大多数 Perl 的库一致。如果在你的系统中已经安装了 `perl` （大多数 Linux 版本已经默认包含了 `perl`），这时你可以使用下面简单命令完成安装：
 
 [source,bash]
 ----
 cpan Test::Nginx
 ----
 
-对于第一次运行 `cpan` 工具，可能它将提示你配置 `cpan` 工具，以此来适配你的环境。如果你不确定这些选项，选择默认配置选项（如果可用）或者接受所有默认选项。
+对于第一次运行 `cpan` 工具，可能它将提示你配置 `cpan` 工具，以此来适配你的环境。如果你不确定这些选项，选择默认配置选项（如果有）或者接受所有默认选项。
 
 `Test::Nginx` 针对不同用户环境，提供了几个不同的测试类。最经常被使用的一个是 `Test::Nginx::Socket` 。本章的剩余部分焦点将集中在测试类以及它们的子类。从现在开始没有特殊说明，我们将把 `Test::Nginx` 和 `Test::Nginx::Socket` 混合，使用 `Test::Nginx::Socket` 代表测试模块及其子类。
 
