@@ -1,78 +1,24 @@
 == Test::Nginx
 
-link:https://metacpan.org/pod/Test::Nginx[Test::Nginx] 是一个测试驱动框架，可以驱动运行在 NGINX 上的任何代码，当然也可以是 NGINX 的内核代码。它使用 Perl 语言编写的，数年时间的积累，使得它丰富的测试设备，以及完备的周边工具链。更进一步，使用者都不需要知道这些测试用例架构是用 Perl 书写的，`Test::Nginx` 提供了非常简单符号来表达当前测试用例，并把它们用一种规范格式组织起来。
+link:https://metacpan.org/pod/Test::Nginx[Test::Nginx] 是一个测试框架，可以驱动运行在 NGINX 上的任何测试用例代码，同样也可以是 NGINX 的内核代码。它使用 Perl 语言编写，数年时间的积累，使得它有丰富的测试设备，以及完整的周边工具链。更进一步，使用者都不需要知道这些测试用例框架是用 Perl 书写的，`Test::Nginx` 提供了一些简单符号来表达当前测试用例，并把它们用一种规范格式组织起来。
 
-link:https://metacpan.org/pod/Test::Nginx[Test::Nginx] is a test framework
-that drives test cases written for any
-code running atop NGINX, and also, naturally, the NGINX core itself. It
-is written in Perl because of the rich testing facilities and toolchain
-already accumulated in the Perl world for years. Fortunately, the user
-does not really need to know Perl for writing test cases atop this scaffold
-since `Test::Nginx` provides a very simple notation to present the test
-cases in a specification-like format.
-
-这种简单测试规范格式或称语言，让 `Test::Nginx` 的存在更像一种方言，尤其是它与 Perl 世界里提供更普遍的 link:https://metacpan.org/pod/distribution/Test-Base/lib/Test/Base.pod[Test::Base] 测试语言。
-
-The simple test specification format, or language, used in `Test::Nginx`
-is just a dialect of the more general testing language provided by the
-link:https://metacpan.org/pod/distribution/Test-Base/lib/Test/Base.pod[Test::Base]
-testing module in the Perl world. 
-
-事实上，用面向对象的角度看，`Test::Nginx` 仅仅是 `Test::Base` 子类。	
-In fact, `Test::Nginx` is just a subclass
-of `Test::Base` in the sense of object-oriented programming. 
-
-这就意味着 `Test::Base` 提供的所有特性在 `Test::Nginx` 都是可用的，`Test::Nginx` 仅仅提供更易用的原语和符号，用来简化 NGINX 和 OpenResty 环境的测试。
-This means
-that all the features offered by `Test::Base` is available in `Test::Nginx`
-and `Test::Nginx` just provides handy primitives and notations that simplify
-testing in the NGINX and OpenResty context. 
-
-`Test::Base` 的核心理念，是基于 `Test::Base` 的测试系统可以被不同项目广泛、有效的使用，甚至包括 Haskell 编程和 Linux 内核模块。`Test::Nginx` 只是我们为了 NGINX 和 OpenResty 世界创造的例子。有关 `Test::Base` 框架自身的详细讨论，已经超过了这本书的范畴，但在后续章节中，我们还将介绍 `Test::Nginx` 继承下来有关 `Test::Base` 的重要特性。
-The core idea of `Test::Base`
-is so useful that we have been using testing scaffolds based on `Test::Base`
-in many different projects even including Haskell programs and Linux kernel
-modules. `Test::Nginx` is such an example we created for the NGINX and
-OpenResty world. Detailed discussion of the `Test::Base` framework itself
-is beyond the scope of this book, but we will introduce the important features
-of `Test::Base` that are inherited by `Test::Nginx` in the later sections.
+这种简单测试规范格式或称小语言，使得`Test::Nginx` 的更像是 Perl 世界里 link:https://metacpan.org/pod/distribution/Test-Base/lib/Test/Base.pod[Test::Base] 测试模块提供的各种通用测试语言的一种方言。事实上，用面向对象的角度看，`Test::Nginx` 是 `Test::Base` 子类。这就意味着 `Test::Base` 提供的所有特性在 `Test::Nginx` 都是可用的，`Test::Nginx` 提供更易用的原语和符号，用来简化 NGINX 和 OpenResty 环境的测试。 `Test::Base` 的核心理念，是基于 `Test::Base` 的测试系统可以被不同项目广泛、有效的使用，甚至包括 Haskell 编程和 Linux 内核模块。`Test::Nginx` 只是我们为了 NGINX 和 OpenResty 世界创造的例子。有关 `Test::Base` 框架自身的详细讨论，已经超过了这本书的范畴，但在后续章节中，我们还将介绍 `Test::Nginx` 继承下来有关 `Test::Base` 的重要特性。
 
 `Test::Nginx` 通过 link:http://www.cpan.org/[CPAN] 发行，CPAN（Comprehensive
-Perl Archive Network）。如同其他大多数 Perl 的库，如果在你的系统中已经安装了 `perl` （大多数 Linux 版本已经默认包含了 `perl`），这时你可以使用下面简单命令完成安装：
-`Test::Nginx` is distributed via link:http://www.cpan.org/[CPAN], the Comprehensive
-Perl Archive Network, just like most of the other Perl libraries. If you
-already have `perl` installed in your system (many Linux distributions
-ship with `perl` by default), then you can install `Test::Nginx` with the
-following simple command:
+Perl Archive Network），与其他大多数 Perl 的库一样。如果在你的系统中已经安装了 `perl` （大多数 Linux 版本已经默认包含了 `perl`），这时你可以使用下面简单命令完成安装：
 
 [source,bash]
 ----
 cpan Test::Nginx
 ----
 
-对于第一次运行 `cpan` 工具，可能它将提示你配置 `cpan` 工具，以此来适配你的环境。如果你不确定这些选项，只选择默认配置选项（如果可用）或者接受所有默认选项。
-For the first time that the `cpan` utility is run, you may be prompted
-to configure the `cpan` utility to fit your requirements. If you are unsure
-about those options, just choose the automatic configuration option (if
-available) or just accept all the default settings.
+对于第一次运行 `cpan` 工具，可能它将提示你配置 `cpan` 工具，以此来适配你的环境。如果你不确定这些选项，选择默认配置选项（如果可用）或者接受所有默认选项。
 
-`Test::Nginx` 针对不同用户环境，提供了几个不同的测试类。最经常被使用的一个是 `Test::Nginx::Socket` 。本章的剩余部分焦点将集中在测试类以及它的子类。
-`Test::Nginx` provides several different testing classes for different
-user requirements. The most frequently used one is `Test::Nginx::Socket`.
-The rest of this chapter will focus on this testing class and its subclasses.
-We will use the names `Test::Nginx` and `Test::Nginx::Socket` interchangeably
-from now on to mean the `Test::Nginx::Socket` test module and its subclasses,
-unless otherwise specified.
+`Test::Nginx` 针对不同用户环境，提供了几个不同的测试类。最经常被使用的一个是 `Test::Nginx::Socket` 。本章的剩余部分焦点将集中在测试类以及它们的子类。从现在开始没有特殊说明，我们将把 `Test::Nginx` 和 `Test::Nginx::Socket` 混合，使用 `Test::Nginx::Socket` 代表测试模块及其子类。
 
 // Alas. GitBook does not support sidebar blocks in its AsciiDoc render.
 // .Another Test::Nginx
 
-NOTE: There is actually another different testing scaffold called `Test::Nginx`,
-created by Maxim Dounin and maintained by the official NGINX team. That
-testing module is shipped with the link:http://hg.nginx.org/nginx-tests/file/tip[official
-NGINX test suite] and has no
-relationship with our `Test::Nginx` except that both of these are meant
-to test NGINX related code. The NGINX team's `Test::Nginx` requires the
-user to directly code in Perl to convey all the test cases, which means
-that tests written for their `Test::Nginx` are not data driven and requires
-decent knowledge about Perl programming.
+注意：这里实际上还有另外一个不同的测试框架也叫 `Test::Nginx`，是由 Maxim Dounin 创建并由 NGINX 官方团队保留。这个测试模块是通过 link:http://hg.nginx.org/nginx-tests/file/tip[official
+NGINX test suite] 对外发行，除了这两者都是测试 NGINX 相关代码，它与我们的 `Test::Nginx` 没有任何联系。 NGINX 团队的 `Test::Nginx` 需要用户在 Perl 中直接写代码来表达测试用例，也就意味着他们在 `Test::Nginx` 所写的测试用例不是数据驱动并需要适当的 Perl 编程知识。
+
