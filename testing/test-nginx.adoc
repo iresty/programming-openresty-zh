@@ -19,6 +19,6 @@ cpan Test::Nginx
 // Alas. GitBook does not support sidebar blocks in its AsciiDoc render.
 // .Another Test::Nginx
 
-注意：这里实际上还有另外一个不同的测试框架也叫 `Test::Nginx`，是由 Maxim Dounin 创建并由 NGINX 官方团队保留。这个测试模块是通过 link:http://hg.nginx.org/nginx-tests/file/tip[official
+注意: 这里实际上还有另外一个不同的测试框架也叫 `Test::Nginx`，是由 Maxim Dounin 创建并由 NGINX 官方团队保留。这个测试模块是通过 link:http://hg.nginx.org/nginx-tests/file/tip[official
 NGINX test suite] 对外发行，除了这两者都是测试 NGINX 相关代码，它与我们的 `Test::Nginx` 没有任何联系。 NGINX 团队的 `Test::Nginx` 需要用户在 Perl 中直接写代码来表达测试用例，也就意味着他们在 `Test::Nginx` 所写的测试用例不是数据驱动并需要适当的 Perl 编程知识。
 
