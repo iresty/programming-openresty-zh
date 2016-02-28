@@ -1,0 +1,52 @@
+== 测试套件结构
+
+// 翻译中。。。。（yuansheng）
+
+Projects using `Test::Nginx` to drive their test suites usually have a
+common directory layout and common test file name patterns to organize
+their tests. This makes the user easy
+to reason about the location of the test suite in a project source tree
+and the usage of the tests. It is not really required, however, to use
+this common convention; it is just highly recommended.
+
+By convention, such projects have a `t/` directory at the root of their
+source tree where test files reside in. Each test file contains test cases
+that are closely related in some way and has the file extension `.t` to
+easily identify themselves as "test files". Below is the directory tree
+structure of a real-world test suite inside the
+link:https://github.com/openresty/headers-more-nginx-module[headers-more-nginx-module]
+project:
+
+....
+└── t
+    ├── bug.t
+    ├── builtin.t
+    ├── eval.t
+    ├── input-conn.t
+    ├── input-cookie.t
+    ├── input-ua.t
+    ├── input.t
+    ├── phase.t
+    ├── sanity.t
+    ├── subrequest.t
+    ├── unused.t
+    └── vars.t
+....
+
+When you have many test files, you can also group them further with sub-directories
+under `t/`. For example, in the link:https://github.com/openresty/lua-nginx-module[lua-nginx-module]
+project, we have sub-directores like `023-rewrite/` and `024-access/` under
+its `t/` directory.
+
+In essence, each `.t` file is a Perl script file runnable by either `perl`
+or Perl's universal test harness tool named link:http://perldoc.perl.org/prove.html[prove].
+We usually use the
+`prove` command-line utility to run such `.t` files to obtain test results.
+Although `.t` files are Perl scripts per se, they usually do not have much
+Perl code at all. Instead, all of the test cases are declared as cleanly
+formatted "data" in these `.t` files.
+
+NOTE: The test suite layout convention we use here are also used by the
+Perl community for many years. Because `Test::Nginx` is written in Perl
+and reuses Perl's testing toolchain, it makes sense for us to simply follow
+that convention in the NGINX and OpenResty world as well.
