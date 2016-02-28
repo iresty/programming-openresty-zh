@@ -41,7 +41,7 @@ project:
     └── vars.t
 ....
 
-
+当你有很多测试文件，你也可以对 `t/` 目录再次使用子目录拆分完成更深的分组归类。例如，link:https://github.com/openresty/lua-nginx-module[lua-nginx-module] 项目，我们在 `t/` 目录下就有 `023-rewrite/` 和 `024-access/` 两个子目录。
 When you have many test files, you can also group them further with sub-directories
 under `t/`. For example, in the link:https://github.com/openresty/lua-nginx-module[lua-nginx-module]
 project, we have sub-directores like `023-rewrite/` and `024-access/` under
@@ -54,6 +54,7 @@ We usually use the
 Although `.t` files are Perl scripts per se, they usually do not have much
 Perl code at all. Instead, all of the test cases are declared as cleanly
 formatted "data" in these `.t` files.
+
 
 NOTE: The test suite layout convention we use here are also used by the
 Perl community for many years. Because `Test::Nginx` is written in Perl
