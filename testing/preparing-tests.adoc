@@ -11,15 +11,13 @@
 
 === 准备 NGINX 的配置
 
-在一个测试块里面，我们可以用不同的数据区块来指定我们自定义的片段，
+在一个测试块里面，我们可以用不同的数据节来指定我们自定义的代码片段，
 放在由 `Test::Nginx` 生成的最终的 `nginx.conf` 配置文件的不同位置中。
 
-The most common one is the `config` section which is used to insert custom
-snippets inside the `server {}` configuration block for the default test
-server. We can also use the `http_config` section to insert our custom
-content into the `http {}` configuration block of `nginx.conf`. The `main_config`
-section can be used to insert content into the top-level scope of the NGINX
-configuration. Let's consider the following example.
+最常见的是 `config` 节，它用来在默认测试服务器的 `server {}` 配置块中插入自定义代码片段。
+我们也可以在 `nginx.conf` 的 `http {}` 配置块中，用 `http_config` 节来插入自定义的内容。
+`main_config` 节可以在 NGINX 配置的最上层范围中插入自定义内容。
+一起看看下面这个例子。
 
 [source,test-base]
 ----
