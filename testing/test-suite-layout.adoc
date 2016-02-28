@@ -2,9 +2,9 @@
 
 // 翻译中。。。。（yuansheng）
 
-使用 `Test::Nginx` 驱动我们的测试套件，通常会用一个公共的目录结构以及规范的测试文件名样式，用来组织我们的测试集合。
+使用 `Test::Nginx` 驱动我们的测试套件，通常使用一个公共的目录结构以及规范的测试文件名样式，用来组织我们的测试集合。
 这些会让用户更容易明白，这些测试用例在项目源码中的目录关系，以及测试用例的使用情况。
-它不是必须的，然而，按照这种常见惯例组织，还是非常推荐的。
+它不是必须的，然而，按照这种常见约定组织，还是非常推荐的。
 
 Projects using `Test::Nginx` to drive their test suites usually have a
 common directory layout and common test file name patterns to organize
@@ -13,8 +13,8 @@ to reason about the location of the test suite in a project source tree
 and the usage of the tests. It is not really required, however, to use
 this common convention; it is just highly recommended.
 
-按照惯例，这些项目在当前源码的根目录下，有个 `t/` 目录用来存放测试文件。
-每个测试文件包含一些具有相同属性或关联度的测试用例，保存在扩展名为 `.t` 的文件中，可以很容易的表明它们自身是 “测试文件”。
+按照约定，这些项目在当前源码的根目录下，有个 `t/` 目录用来存放测试文件。
+每个测试文件包含一些具有关联度的测试用例，保存在扩展名为 `.t` 的文件中，可以很容易表明这是 “测试文件”。
 下面的目录树结构，是真实项目 link:https://github.com/openresty/headers-more-nginx-module[headers-more-nginx-module] 的测试套件：
 
 By convention, such projects have a `t/` directory at the root of their
@@ -41,7 +41,7 @@ project:
     └── vars.t
 ....
 
-当你有很多测试文件，你也可以对 `t/` 目录再次使用子目录拆分完成更深的分组归类。例如，link:https://github.com/openresty/lua-nginx-module[lua-nginx-module] 项目，我们在 `t/` 目录下就有 `023-rewrite/` 和 `024-access/` 两个子目录。
+当你有很多测试文件，你可以对 `t/` 使用子目录拆分完成更深的分组归类。例如，link:https://github.com/openresty/lua-nginx-module[lua-nginx-module] 项目，我们在 `t/` 目录下就有 `023-rewrite/` 和 `024-access/` 两个子目录。
 When you have many test files, you can also group them further with sub-directories
 under `t/`. For example, in the link:https://github.com/openresty/lua-nginx-module[lua-nginx-module]
 project, we have sub-directores like `023-rewrite/` and `024-access/` under
@@ -60,7 +60,7 @@ Perl code at all. Instead, all of the test cases are declared as cleanly
 formatted "data" in these `.t` files.
 
 注意：我们这里使用的测试套件设计约定，在 Perl 社区已经延用多年。
-因为 `Test::Nginx` 使用 Perl 编写的，在 Perl 的测试工具链中重用，这就很容易说得通，我们只需要
+因为 `Test::Nginx` 使用 Perl 编写的，并且在 Perl 的测试工具链中被重用，我们只需要让
  NGINX 和 OpenResty 世界简单的遵循这些约定就好。
 NOTE: The test suite layout convention we use here are also used by the
 Perl community for many years. Because `Test::Nginx` is written in Perl
