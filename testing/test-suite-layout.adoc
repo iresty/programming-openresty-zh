@@ -47,6 +47,10 @@ under `t/`. For example, in the link:https://github.com/openresty/lua-nginx-modu
 project, we have sub-directores like `023-rewrite/` and `024-access/` under
 its `t/` directory.
 
+本质上，每一个 `.t` 文件是一个 Perl 脚本文件，它的执行由 `perl` 或者 `Perl` 世界比较普遍的工具名叫 link:http://perldoc.perl.org/prove.html[prove] 完成的。
+我们通常使用 `prove` 命令行工具来执行这些 `.t` 文件来获取测试结果。
+尽管这些 `.t` 文件每一个都是 Perl 脚本，但他们通常都不包含任何 Perl 脚本。
+取而代之的，这里声明的所有测试用例，仅仅是放在 `.t` 文件中统一格式的基本 “数据”。
 In essence, each `.t` file is a Perl script file runnable by either `perl`
 or Perl's universal test harness tool named link:http://perldoc.perl.org/prove.html[prove].
 We usually use the
