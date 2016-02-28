@@ -41,8 +41,7 @@ GET /t
 ok
 ----
 
-This test block will generate an `nginx.conf` file with the following basic
-structure:
+这个测试块会生成一个有如下基本结构的  `nginx.conf` 文件：
 
 [source,nginx]
 ----
@@ -66,9 +65,7 @@ http {
 }
 ----
 
-Please pay attention to how the `main_config`, `http_config`, and `config`
-data sections' values are mapped into different locations in the NGINX
-configuration file.
+请注意 `main_config`, `http_config`, 和 `config` 这几个数据节的值，是如何映射到 NGINX 配置文件的不同位置的。
 
 When in doubt, we can always check out the actual `nginx.conf` file generated
 by the test scaffold at the location `t/servroot/conf/nginx.conf` in the
