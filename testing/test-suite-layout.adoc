@@ -1,4 +1,4 @@
-== 测试套件结构
+== 测试套件设计
 
 // 翻译中。。。。（yuansheng）
 
@@ -59,7 +59,9 @@ Although `.t` files are Perl scripts per se, they usually do not have much
 Perl code at all. Instead, all of the test cases are declared as cleanly
 formatted "data" in these `.t` files.
 
-
+注意：我们这里使用的测试套件设计约定，在 Perl 社区已经延用多年。
+因为 `Test::Nginx` 使用 Perl 编写的，在 Perl 的测试工具链中重用，这就很容易说得通，我们只需要
+ NGINX 和 OpenResty 世界简单的遵循这些约定就好。
 NOTE: The test suite layout convention we use here are also used by the
 Perl community for many years. Because `Test::Nginx` is written in Perl
 and reuses Perl's testing toolchain, it makes sense for us to simply follow
