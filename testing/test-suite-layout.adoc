@@ -42,6 +42,7 @@ project:
 ....
 
 当你有很多测试文件，你可以对 `t/` 使用子目录拆分完成更深的分组归类。例如，link:https://github.com/openresty/lua-nginx-module[lua-nginx-module] 项目，我们在 `t/` 目录下就有 `023-rewrite/` 和 `024-access/` 两个子目录。
+
 When you have many test files, you can also group them further with sub-directories
 under `t/`. For example, in the link:https://github.com/openresty/lua-nginx-module[lua-nginx-module]
 project, we have sub-directores like `023-rewrite/` and `024-access/` under
@@ -51,6 +52,7 @@ its `t/` directory.
 我们通常使用 `prove` 命令行工具来执行这些 `.t` 文件来获取测试结果。
 尽管这些 `.t` 文件每一个都是 Perl 脚本，但他们通常都不包含任何 Perl 脚本。
 取而代之的，这里声明的所有测试用例，仅仅是放在 `.t` 文件中统一格式的基本 “数据”。
+
 In essence, each `.t` file is a Perl script file runnable by either `perl`
 or Perl's universal test harness tool named link:http://perldoc.perl.org/prove.html[prove].
 We usually use the
@@ -62,6 +64,7 @@ formatted "data" in these `.t` files.
 注意：我们这里使用的测试套件设计约定，在 Perl 社区已经延用多年。
 因为 `Test::Nginx` 使用 Perl 编写的，并且在 Perl 的测试工具链中被重用，我们只需要让
  NGINX 和 OpenResty 世界简单的遵循这些约定就好。
+
 NOTE: The test suite layout convention we use here are also used by the
 Perl community for many years. Because `Test::Nginx` is written in Perl
 and reuses Perl's testing toolchain, it makes sense for us to simply follow
