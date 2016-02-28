@@ -1,10 +1,4 @@
-== 测试套件结构
-
-// 翻译中。。。。（yuansheng）
-
-使用 `Test::Nginx` 驱动我们的测试套件，通常会用一个公共的目录结构以及规范的测试文件名样式，用来组织我们的测试集合。
-这些会让用户更容易明白，这些测试用例在项目源码中的目录关系，以及测试用例的使用情况。
-它不是必须的，然而，按照这种常见惯例组织，还是非常推荐的。
+== Test Suite Layout
 
 Projects using `Test::Nginx` to drive their test suites usually have a
 common directory layout and common test file name patterns to organize
@@ -12,10 +6,6 @@ their tests. This makes the user easy
 to reason about the location of the test suite in a project source tree
 and the usage of the tests. It is not really required, however, to use
 this common convention; it is just highly recommended.
-
-按照惯例，这些项目在当前源码的根目录下，有个 `t/` 目录用来存放测试文件。
-每个测试文件包含一些具有相同属性或关联度的测试用例，保存在扩展名为 `.t` 的文件中，可以很容易的表明它们自身是 “测试文件”。
-下面的目录树结构，是真实项目 link:https://github.com/openresty/headers-more-nginx-module[headers-more-nginx-module] 的测试套件：
 
 By convention, such projects have a `t/` directory at the root of their
 source tree where test files reside in. Each test file contains test cases
@@ -40,7 +30,6 @@ project:
     ├── unused.t
     └── vars.t
 ....
-
 
 When you have many test files, you can also group them further with sub-directories
 under `t/`. For example, in the link:https://github.com/openresty/lua-nginx-module[lua-nginx-module]
