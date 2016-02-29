@@ -74,10 +74,10 @@ http {
 测试框架默认会在运行每一个测试块之前，自动启动一个新的 NGINX 服务，然后在这个测试块运行结束后立即关闭服务。
 好在 NGINX 是一个轻量的服务器，通常启动和关闭都非常快。所以，测试块运行起来并没有看上去那么慢。
 
-=== Preparing Requests
+=== 准备发起请求
 
-The simplest way to prepare a request is to use the `request` data section,
-as in
+准备一个请求，最简单的是用 `request` 数据节,
+比如
 
 [source,test-base]
 ----
@@ -85,8 +85,7 @@ as in
 GET /t?a=1&b=2
 ----
 
-The HTTP/1.1 protocol is used by default. You can explicitly make it use
-the HTTP/1.0 protocol if desired:
+默认使用的是 HTTP/1.1 协议。如果你愿意，可以指明来使用 HTTP/1.0 协议:
 
 [source,test-base]
 ----
