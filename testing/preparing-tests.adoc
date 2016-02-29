@@ -67,18 +67,12 @@ http {
 
 请注意 `main_config`, `http_config`, 和 `config` 这几个数据节的值，是如何映射到 NGINX 配置文件的不同位置的。
 
-When in doubt, we can always check out the actual `nginx.conf` file generated
-by the test scaffold at the location `t/servroot/conf/nginx.conf` in the
-current working directory (usually just being the root directory of the
-current project).
+有疑问的时候，我们总是可以来检查这个测试框架生成的实际 `nginx.conf` 文件，
+它位于当前工作目录（通常是当前项目的根目录）的 `t/servroot/conf/nginx.conf` 位置中。
 
-`Test::Nginx` generates a new `nginx.conf` file for each test block, which
-makes it possible for each test block to become self-contained. By default,
-the test scaffold automatically starts a new NGINX server before running
-each test block and shuts down the server immediately after running the
-block. Fortunately, NGINX is a lightweight server and it is usually very
-fast to start and stop. Thus, the test blocks are not that slow to run
-as it might look.
+`Test::Nginx` 会为每一个测试块生成一个新的 `nginx.conf` 文件，这会让每个测试块独立存在成为可能。
+测试框架默认会在运行每一个测试块之前，自动启动一个新的 NGINX 服务，然后在这个测试块运行结束后立即关闭服务。
+好在 NGINX 是一个轻量的服务器，通常启动和关闭都非常快。所以，测试块运行起来并没有看上去那么慢。
 
 === Preparing Requests
 
