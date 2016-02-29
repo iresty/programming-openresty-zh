@@ -93,9 +93,7 @@ GET /t?a=1&b=2
 GET /t?a=1&b=2 HTTP/1.0
 ----
 
-Leading spaces or empty lines in the value of the `request` section are
-automatically discarded. You can even add comments by leading them with
-a `#` character, as in
+`request` 小节的值中，前导空格或者空白行都会被自动丢弃。你甚至可以在最前面加一个 `#` 字符来增加注释，比如
 
 [source,test-base]
 ----
@@ -105,8 +103,7 @@ a `#` character, as in
     GET /t
 ----
 
-You can add some additional request headers at the same time through the
-`more_headers` section as below.
+你可以通过如下 `more_headers` 小节来同时增加一些额外的请求头部信息。
 
 [source,test-base]
 ----
