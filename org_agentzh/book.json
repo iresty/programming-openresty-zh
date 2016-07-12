@@ -1,0 +1,11 @@
+{
+    "author": "Yichun Zhang <agentzh@openresty.org>",
+    "description": "Official Guide on OpenResty Programming",
+    "generator": "site",
+    "links": {
+        "sidebar": {
+            "About The Author": "http://agentzh.org/",
+            "OpenResty Home": "https://openresty.org"
+        }
+    }
+}
