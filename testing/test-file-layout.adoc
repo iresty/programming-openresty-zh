@@ -1,0 +1,446 @@
+== Test File Layout
+
+// 翻译中。。。。（luozexuan）
+:special_data_line: __DATA__
+
+Test files usually have a common file extension, `.t`, to distinguish themselves
+from other types of files in the source tree. Each test file is a Perl
+script per se. `Test::Nginx` follows a special design that decomposes each
+test file into two main parts: the first part is a very short prologue
+that consists of a few lines of Perl code while the second part is a listing
+of the test cases in a special data format. These two parts are separated
+by the following special line
+
+测试文件通常带 `.t` 后缀，以此跟源码树中的其他文件相区分。每个测试文件本身是一个 Perl 脚本。
+`Test::Nginx` 遵循一套特别的设计，把每个测试文件分成两部分：
+第一部分是非常短的序言（prologue），包括若干行 Perl 代码；
+第二部分则是按特定格式组织起来的测试用例列表。
+这两部分由下面这一行分隔开来。
+
+....
+__DATA__
+....
+
+The `perl` interpreter or the `prove` utility stop interpreting the file
+content as Perl source code until they see this special line. Everything
+after this line is treated as *data* in plain text that is reachable
+by the Perl code above this line. The most interesting part of each `.t`
+test file is the stuff after this line, i.e., the data part.
+
+`perl` 解释器或 `prove` 工具一旦遇到这一行，就会停止以 Perl 代码的形式解释文件内容。
+在这之后的文本，都会被当作前面的 Perl 代码所能操作的 *数据* 。
+这部分，即数据部分，是每个 `.t` 测试文件中最有趣的地方，
+
+NOTE: The special `{special_data_line}` notation is a powerful feature
+of the Perl programming language that allows embedding arbitrary free-text
+data in any Perl script files that can be manipulated by the containing
+Perl scripts themselves. `Test::Nginx` takes advantage of this feature
+to allow data-driven test case specifications in a simple format or language
+that is easily understandable by everyone, even those without any prior
+experiences in Perl programming.
+
+NOTE: `{special_data_line}` 标记是 Perl 编程语言的一个强大特性，
+它允许你添加任意纯文本数据到 Perl 脚本文件中， 以供该脚本使用。
+凭借这一特性，`Test::Nginx` 实现了一套简单的测试格式，亦可说是语言。
+用户无需学习 Perl， 即可上手编写简明易懂的数据驱动的测试用例。
+
+=== The Prologue Part 序言部分
+
+The first part, i.e., the "prologue" above the `{special_data_line}` line
+is usually just a few lines of Perl code. You do not have to know Perl
+programming to write them down because they are so simple and seldom or
+never change. The simplest Perl code prologue is as follows:
+
+第一部分，即位于 `{special_data_line}` 之上的“序言部分”，通常只是寥寥几行 Perl 代码。
+这些代码是如此地简单和通用，以至于不需要懂 Perl 语法就能编写。最简单的 Perl 序言如下：
+
+[source,perl,linenums]
+----
+use Test::Nginx::Socket 'no_plan';
+run_tests();
+----
+
+The first line is just loading the Perl module (or class), `Test::Nginx::Socket`
+and passing the option `'no_plan'` to it to disable test plans (we will
+talk more about test plans in later chapters and we do not bother worrying
+about it here). `Test::Nginx::Socket` is one of the most popular class
+in the `Test::Nginx` test framework. The second line just calls the `run_tests`
+Perl function imported automatically from the `Test::Nginx::Socket` module
+to run all the test cases defined in the data part of the test file (i.e.,
+the things coming after the `{special_data_line}` line).
+
+这里的第一行加载了 Perl 模块（或类）——`Test::Nginx::Socket` 并传递 `'no_plan'` 参数来禁用测试计划（test plan，我们后面会提到更多关于它的内容，这里先搁置不管）。
+`Test::Nginx::Socket` 是 `Test::Nginx` 测试框架中最常用的类之一。
+第二行调用了从 `Test::Nginx::Socket` 模块中自动引入的 `run_tests` 来运行测试文件中定义的所有测试用例（即 `{special_data_line}` 之后的内容）。
+
+There are, however, more complicated prologue parts in many real-world
+test suites. Such prologues usually define some special environment variables
+or Perl variables that can be shared and referenced in the test cases defined
+in the "data part", or just call some other Perl functions imported by
+the `Test::Nginx::Socket` module to customize the testing configurations
+and behaviors for the current test file. We will return to such fancier
+prologues in later sections. They can be very helpful in some cases.
+
+在实际的测试代码中，序言部分的内容往往会更加复杂。
+这些内容包括定义能在各个用例中共享的环境变量或 Perl 变量，或者调用 `Test::Nginx::Socket` 模块中的函数来自定义当前测试文件的配置和行为。
+在后面的段落中，我们会回过头介绍这些序言。在某些场景下，它们真的挺有用。
+
+NOTE: Perl allows function calls to omit the parentheses if the context
+is unambiguous. So we may see Perl function calls without parentheses in
+real-world test files' prologue part, like `run_tests;`. We may use such
+forms in examples presented in later sections because they are more compact.
+
+NOTE: 在上下文不引起歧义的情况下，Perl 允许在调用函数时省略括号。
+所以在实际项目中的测试文件的序言部分，我们能够看到省略括号的用法，比如 `run_tests;`。
+在接下来的段落中，我们会使用这种形式，因为它让代码更紧凑。
+
+=== The Data Part 数据部分
+
+The data part is the most important part of any test files powered by `Test::Nginx`.
+This is where test cases reside. It uses a simple specification format
+to express test cases so that the user does not use Perl or any other general-purpose
+languages to present the tests themselves. This special specification format
+is an instance of Domain-Specific Languages (DSL) where the "domain" is
+defined as testing code running upon or inside NGINX. Use of a DSL to present
+test cases open the door of presenting the test cases as _data_ instead
+of code. This is also why `Test::Nginx` is a data-driven testing framework.
+
+数据部分是 `Test::Nginx` 测试文件中最为重要的部分。这是测试用例所在之处。
+它设计了一种简单的数据格式，让用户无需使用 Perl 或其他通用语言来撰写测试用例。
+这种特别的专用格式适用于为运行在NGINX上的代码编写测试这一领域，算是领域特定语言（DSL）的一种。
+DSL的使用打开了新世界的大门，使得用户可以把测试用例当作 _数据_ 而非代码。
+这也是为什么 `Test::Nginx` 是一个数据驱动的测试框架。
+
+The test case specification in the data part is composed by a series of
+_test blocks_. Each test block usually corresponds to a single test case,
+which has a _title_, an optional _description_, and a series of _data sections_.
+The structure of a test block is described by the following template.
+
+测试用例在数据部分由一组 _测试块_ 构成。
+每个测试块对应单个策划是用例，包含一个 _标题_ 、一个可选的 _描述_ 和几个 _数据节_。
+下面的模板描述了一个测试块的结构：
+
+[source,test-base]
+----
+=== title
+optional description
+goes here...
+--- section1
+value1 goes
+here
+--- section2
+value2 is
+here
+--- section3
+value3
+----
+
+==== Block Titles 块标题
+
+As we can see, each test block starts with a title line prefixed by three
+equal sign (`===`). It is important to _avoid_ any leading spaces at the
+beginning of the line. The title is mandatory and is important to describe
+the intention of the current test case in the most concise form, and also
+to identify the test block in the test report when test failures happen.
+By convention we put a `TEST N:` prefix in this title, for instance, `TEST
+3: test the simplest form`. Don't worry about maintaining the test ordinal
+numbers in these titles yourself, we will introduce a command-line utility
+called link:https://raw.githubusercontent.com/agentzh/old-openresty/master/bin/reindex[reindex]
+in a later section that can automatically update the ordinal numbers in
+the block titles for you.
+
+如你所见，每个测试块的标题以三个等于号（`===`）作为开头。注意行头 _不能_ 留空。
+标题是必须要有的，你需要在此用精炼的语言描述当前测试用例的意图。
+当测试失败时，你还需要靠它定位具体的测试块。简明起见，我们会给标题加上一个 `TEST N:` 前缀，
+比如 `TEST3: test the simplest form`。
+无需担心测试序号的维护问题，我们稍后会介绍一个名为 link:https://raw.githubusercontent.com/agentzh/old-openresty/master/bin/reindex[reindex] 的命令行工具，它会替你自动更新块标题的序号。
+
+==== Block Descriptions 块描述
+
+Each test block can carry an optional description right after the block
+title line. This description can span multiple lines if needed. It is a
+more detailed description of the intention of the test block than the block
+title and may also give some background information about the current test.
+Many test cases just omit this part for convenience.
+
+每个测试块可以在块标题下面加上可选的块描述。如果需要的话，这个描述可以分成多行。
+比起块标题，它更加详尽地说明了测试块的意图，还可能提供当前测试的一些背景信息。
+出于方便，许多测试用例省略了这一部分。
+
+==== Data Sections 数据节
+
+Every test block carries one or more _data sections_ right after the block
+description (if any). Data sections always have a name and a value, which
+specify any input data fields and the _expected_ output data fields.
+
+（如果有的话）块描述后面紧接着一到多个 _数据节_。
+数据节总是带有一个名字和对应值，指定输入的数据类型和 _期望的_ 输出数据类型。
+
+The name of a data section is the word after the line prefix `---`. Spaces
+are allowed though not syntactically required after `---`. We usually use
+a single space between the prefix and the section name for aesthetic considerations
+and we hope that you follow this convention as well. The section names
+usually contain just alphanumeric letters and underscore characters.
+
+一个数据节的名字指 `---` 前缀后面的文字。`---` 后面可以带空格，尽管这不是语法上的要求。
+出于美观起见，我们通常在前缀和名字间留出一个空格，也希望你能照着做。
+数据节的名字通常只由字母、数字和下划线组成。
+
+Section values are specified in two forms. One is all the lines after the
+section name line, before the next section or the next block. The other
+form is more concise and specifies the value directly on the same line
+as the section name, but right after the first colon character (`:`). The
+latter form requires that the value contains no line-breaks. Any spaces
+around the colon are always discarded and never count as a part of the
+section value; furthermore, the trailing line-break character in the one-line
+form does not count either.
+
+数据节的值有两种表现形式。一种是名字那一行之后、下一数据节或测试块之前的各行。
+另一种形式更为紧凑，你可以直接在名字的同一行，以冒号（`:`）隔开指定值。
+前提是指定的值只有一行。冒号两边的空格会被忽略，不作为值的一部分；另外，行结尾的换行符也不会算入。
+
+If no visible values come after the section name in either form, then the
+section takes an empty string value, which is still a _defined_ value,
+however. On the other hand, omitting the section name (and value) altogether
+makes that section _undefined_.
+
+如果名字之后不带任何可见的值，该数据节的值为空字符串，这依然算一个 _有定义_ 的值。
+但是，如果某个数据节没有名字（也没值），那么它是 _未定义_ 的。
+
+`Test::Nginx` offers various pre-defined data section names that can be
+used in the test blocks for different purposes. Some data sections are
+for specifying input data, some are for expected output, and some for controlling
+whether the current test block should be run at all.
+
+`Test::Nginx` 预先定义了一些在测试块中有特殊用途的数据节名。
+有些数据节用来指定输入数据，有些用来指定期望的输出，还有些用来标记当前测试块是否需要运行。
+
+It is best to explain data sections in a concrete test block example.
+
+下面结合一个具体例子来解释数据节。
+
+[source,test-base]
+----
+=== TEST 1: hello, world
+This is just a simple demonstration of the
+echo directive provided by ngx_http_echo_module.
+ngx_http_echo_module 提供的 echo 指令的一个简单演示。
+--- config
+location = /t {
+    echo "hello, world!";
+}
+--- request
+GET /t
+--- response_body
+hello, world!
+--- error_code: 200
+----
+
+Here we have two input data sections, `config` and `request`, for specifying
+a custom NGINX configuration snippet in the default `server {}` and the
+HTTP request sent by the test scaffold to the test NGINX server, respectively.
+In addition, we have one output data section, `response_body`, for specifying
+the expected response body output by the test NGINX server. If the actual
+response body data is different from what we specify under the `response_body`
+section, this test case fails. We have another output data section, `error_code`,
+which specifies its value on the same line of the section name. We see
+that a colon character is used to separate the section name and values.
+Obviously, the `error_code` section specifies the expected HTTP response
+status code, which is 200.
+
+这里有两个关于输入的数据节，`config` 和 `request`。
+前者自定义 `server {}` 内的 NGINX 配置，后者指定测试脚手架发给 NGINX 服务器的 HTTP 请求。
+另外，还有一个关于输出的数据节——`response_body`，指定测试时期望 NGINX 返回的响应。
+如果实际上的响应不同于 `response_body` 的值，该测试用例就失败。
+我们还有另外一个关于输出的数据节——`error_code`，它的值和名字都在同一行。
+可以看到，数据节的名字和值之间以冒号隔开。
+显而易见，`error_code`数据节所指定的，是期望的 HTTP 响应状态码——在这里是200。
+
+Empty lines around data sections are always discarded by `Test::Nginx::Socket`.
+Thus the test block above can be rewritten as below without changing its
+meaning.
+
+数据节前后的空行会被 `TEST::Nginx::Socket` 忽略掉。
+所以上面的测试块示例可以重写成下面的样子：
+
+[source,test-base]
+----
+=== TEST 1: hello, world
+This is just a simple demonstration of the
+echo directive provided by ngx_http_echo_module.
+ngx_http_echo_module 提供的 echo 指令的一个简单演示。
+
+--- config
+location = /t {
+    echo "hello, world!";
+}
+
+--- request
+GET /t
+
+--- response_body
+hello, world!
+
+--- error_code: 200
+----
+
+Some users prefer this style for aesthetic reasons. We are free to choose
+whatever form you like.
+
+出于审美上的理由，有些用户更钟爱这种写法。萝卜白菜，各有所爱。
+
+There are also some special data sections that specify neither input nor
+output. They are just used to _control_ how test blocks are run. For example,
+the `ONLY` section makes _only_ the current test block in the current test
+file run and all the other test blocks are skipped. This is extremely useful
+for running an individual test block in any given file, which is a common
+requirement while debugging a particular test failure. Also, the special
+`SKIP` section can skip running the containing test block unconditionally,
+handy for preparing test cases for future features without introducing
+any expected test failures. We will visit more such "control sections"
+in later sections.
+
+有些特殊的数据节跟输入和输出都没有关系。它们只用于 _控制_ 测试块运行的方式。
+举个例子， `ONLY` 数据节仅让所在的测试块运行，跳过当前测试文件的其他测试块。
+在调试某个失败的测试时，使用该数据节仅运行单一的测试块，是个很实用的方法。
+另一个特殊的数据节 `SKIP` 可以无条件地跳过所在的测试块。
+在准备针对待开发特性的测试时，你可以先用该数据节避免意料之中的测试错误。
+稍后我们会介绍更多类似这样的“控制数据节”。
+
+We shall see, in a later section, that the user can define her own data
+sections or extending existing ones by writing a little bit of custom Perl
+code to satisfy her more complicated testing requirements.
+
+在下文我们还会提到，用户可以通过编写 Perl 代码自定义数据节或拓展现有数据节来满足自己复杂的测试要求。
+
+==== Section Filters 节过滤器
+
+Data sections can take one or more _filters_. Filters are handy when you
+want to adjust or convert the section values in certain ways.
+
+一个数据节可以有一到多个 _过滤器_。过滤器可以用来调整或者转换数据节的值。
+
+Syntactically, filters are specified right after the section name with
+at least one space character as the separator. Multiple filters are also
+separated by spaces and are applied in the order they are written.
+
+过滤器放在数据节名字的后面，并至少用一个空格隔开。多
+个过滤器之间以空格隔开，并按代码中的顺序依次调用。
+
+`Test::Nginx::Socket` provides many filters for your convenience. Consider
+the following data section from the aforementioned test block.
+
+`Test::Nginx::Socket` 提供了许多常用的过滤器。看下来自前述测试块的一个数据节：
+
+[source,test-base]
+----
+--- error_code: 200
+----
+
+If we want to place the section value, 200, in a separate line, like below,
+
+如果你想把200这个值单独放在一行，就像这样，
+
+[source,test-base]
+----
+--- error_code
+200
+----
+
+then the section value would contain a trailing new line, which leads to
+a test failure. This is because the one-line form always excludes the trailing
+new-line character while the multi-line form always includes one. To explicitly
+exclude the trailing new-line in the multi-line form, we can employ the
+`chomp` filter, as in
+
+那么数据节的值里就会有一个换行符，导致状态码无法匹配。
+这是因为单行模式的值会移除结尾的换行符，而多行模式不会。要想在多行模式里去掉结尾的换行，我们可以采用 `chomp` 过滤器，像这样
+
+[source,test-base]
+----
+--- error_code chomp
+200
+----
+
+Now it has exactly the same semantics as the previous one-line form.
+
+现在它的语义跟之前的单行模式一样了。
+
+Some filters have more dramatic effect on the section values. For instance,
+the `eval` filter evaluates the section value as arbitrary Perl code, and
+the Perl value resulted from the execution will be used as the final section
+value. The following section demonstrates using the `eval` filter to produce
+4096 a's:
+
+有些过滤器效果更加显著。
+比如，`eval` 过滤器会把给定的值当作 Perl 代码执行，返回执行结果作为最终的值。
+下面的数据节示范如何用 `eval` 过滤器生成4096个‘a’：
+
+
+[source,test-base]
+----
+--- response_body eval
+"a" x 4096
+----
+
+The original value of the `response_body` section above is a Perl expression
+where the `x` symbol is a Perl operator is used to construct a string that
+repeats the string specified as the left-hand-side N times where N is specified
+by the right-hand-side. The resulting 4096-byte Perl string after evaluating
+this expression dictated by the `eval` filter will be used as the final
+section value for comparison with the actual response body data. It is
+obvious that use of the `eval` filter and a Perl expression here is much
+more readable and manageable by directly pasting that 4096-byte string
+in the test block.
+
+`response_body` 数据节原来的值是一个 Perl 表达式，其中 `x` 运算符会把左边的字符串重复 N 次，N是它右边的数字。
+`eval` 返回的包含4096个字符的 Perl 字符串会被用作数据节最终的值，跟响应体作比较。
+显而易见，无论从可读性还是从可维护性上看，使用 `eval` 过滤器和一个 Perl 表达式要比直接贴上4096个字符更胜一筹。
+
+As with data sections, the user can also define her own filters, as we
+shall see in a later section.
+
+我们稍后会提到，用户可以定义自己的过滤器，并应用在数据节上。
+
+=== A Complete Example 一个完整的例子
+
+We can conclude this section by a complete test file example given below,
+with both the prologue part and the data part.
+
+我们以一个完整的，包含序言部分和数据部分的测试文件示例结束本节。
+
+[source,test-base]
+----
+use Test::Nginx::Socket 'no_plan';
+
+run_tests();
+
+__DATA__
+
+=== TEST 1: hello, world
+This is just a simple demonstration of the
+echo directive provided by ngx_http_echo_module.
+ngx_http_echo_module 提供的 echo 指令的一个简单演示。
+--- config
+location = /t {
+    echo "hello, world!";
+}
+--- request
+GET /t
+--- response_body
+hello, world!
+--- error_code: 200
+----
+
+We will see how to actually run such test files in the next section.
+
+下一节我们看看如何把它运行起来。
+
+NOTE: The test file layout described in this section is exactly the same
+as the test files based on other test frameworks derived from `Test::Base`,
+the superclass of `Test::Nginx::Socket`, except those specialized test
+sections and specialized Perl functions defined only in `Test::Nginx::Socket`.
+All the `Test::Base` derivatives share the same basic layout and syntax.
+They proudly inherit the same veins of blood.
+
+NOTE: 本节中描述的测试文件布局跟其他基于 `TEST::Base` （`Test::Nginx::Socket` 的父类）的测试框架的几乎一样，除了一些特殊的数据节和仅在 `Test::Nginx::Socket` 定义的 Perl 函数。所有衍生自 `Test::Base` 的框架都继承了相同的基本布局和语法。毕竟它们本是同根生。
