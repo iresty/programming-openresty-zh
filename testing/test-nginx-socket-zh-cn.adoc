@@ -1,0 +1,575 @@
+## 名称
+Test::Nginx::Socket - Socket-backed 是一个为 Nginx C 模块和 Nginx/OpenResty-based 库和应用的测试框架
+
+## 说明
+```
+use Test::Nginx::Socket;
+
+repeat_each(2);
+plan tests => repeat_each() * 3 * blocks();
+
+no_shuffle();
+run_tests();
+
+__DATA__
+
+=== TEST 1: sanity
+--- config
+    location /echo {
+        echo_before_body hello;
+        echo world;
+    }
+--- request
+    GET /echo
+--- response_body
+hello
+world
+--- error_code: 200
+
+
+=== TEST 2: set Server
+--- config
+    location /foo {
+        echo hi;
+        more_set_headers 'Server: Foo';
+    }
+--- request
+    GET /foo
+--- response_headers
+Server: Foo
+--- response_body
+hi
+
+
+=== TEST 3: clear Server
+--- config
+    location /foo {
+        echo hi;
+        more_clear_headers 'Server: ';
+    }
+--- request
+    GET /foo
+--- response_headers_like
+Server: nginx.*
+--- response_body
+hi
+
+
+=== TEST 3: chunk size too small
+--- config
+    chunkin on;
+    location /main {
+        echo_request_body;
+    }
+--- more_headers
+Transfer-Encoding: chunked
+--- request eval
+"POST /main
+4\r
+hello\r
+0\r
+\r
+"
+--- error_code: 400
+--- response_body_like: 400 Bad Request
+```
+
+## 描述
+
+这个模块提供了一个基于非阻塞 IO::Socket 测试套件来自动化测试 Nginx C 模块开发
+这个类继承自 Test::Base, 因此带来了所有声明的内容到了 Nginx C 模块测试用例
+
+如果你已经改变了 Nginx server binary，你需要在运行套件之前终结所有 Nginx 进程.
+```
+killall nginx
+PATH=/path/to/your/nginx-with-memc-module:$PATH prove -r t
+```
+这个模块将会创建一个临时的 server root 在当前工作目录的 t/servroot/ 下，然后开启 PATH 环境变量下的 nginx 可执行程序。
+当出现错误的时候，你有经常查看 t/servroot/logs/error.log 这个文件：）
+
+## 用户指南
+你能找到一个在这个测试框架下全面的用户指南在我的即将出版的书 “Programming OpenResty”
+https://openresty.gitbooks.io/programming-openresty/content/testing/index.html
+特性继承自 Test::Base
+Test::Base 里的所有特性都被继承由于它是这个模块的祖先类
+我们会高亮一些继承的特在这里，为了那些不熟悉 Test::Base 的人
+
+## Meta sections
+
+####  --- ONLY
+只运行这附近的测试块，在提交你的变化之前，你需要记住移除掉 --- ONLY。不用担心，当你留下 --- ONLY 在一些测试文件中的时候，这个测试框架会在控制台上提醒你
+
+对于开发工作流这也是非常直观，不需要指定一个特定的测试名称在命令行上，只要在编辑器上找到测试块，插入 --- ONLY ，然后立即运行当前的测试文件，如果是vim 用户，可以使用 :!prove % ，叹号表示要执行指令， %表示 vim 当前编辑的 buffer
+这无疑是最有用和最频繁使用的特性
+
+####  --- SKIP
+Skips 会无条件地跳过测试块，你能使用 --- skip_nginx and --- skip_nginx2 区有条件地跳过测试根据当前 NGINX 服务器版本
+
+## 过滤器
+我们能使用过滤器区处理测试块的值，这能更加容易指定特殊值
+
+例如，我们能砍掉当前段中新的一行的最后一个字符，通过指定 chomp 过滤器，像这样
+#### --- response_body chomp
+Hello world!
+没有 chomp 过滤器，这个 response_body 段的值会包括尾部新的一行 (“\n”)
+我们下面列出一些公共的过滤器
+#### chomp
+如果这是一个新行移除最后一个字符
+#### chop
+无论是什么都移除最后一个字符
+#### eval
+把这些 section 值作为一个 Perl code snippet，使用 Perl code snippet 的返回值
+这是非常有用的对于指定在段里面不是打印的字符，直接打印“\n”
+```
+--- response_body eval
+"I don't know what \0 is.\n"
+```
+
+## Exported Perl 函数
+下面这些 Perl 函数被默认导出
+
+#### run_tests
+这是测试框架的主要入口，在 __DATA__ 前面调用Perl函数使所有的测试运行，其他配置 Perl 函数必须在 run_tests 函数之前调用
+
+#### no_shuffle
+默认地，这个测试框架总是自动地打乱测试块的顺序，如果在 run_tests 之前调用它 no_shuffle，那么将会禁止打乱顺序
+
+#### no_long_string
+默认地，失败的字符串匹配测试将会使用 Test::LongString 模块产生一个错误信息，在 run_tests 之前调用这个函数将会关闭它
+
+#### no_diff
+当 no_long_string 函数被调用的时候，Text::Diff 模块将会被用来产生一个 diff 给错误的字符串相等测试。在 run_test 调用 no_diff 函数会关闭这个diff输出格式并且产生一行 "got" 文本和 "expected" 文本。
+
+#### worker_connections
+在 run_tests 之前调用这个函数去设置 Nginx's worker_connections 的值，例如
+```
+worker_connections(1024);
+run_tests();
+```
+默认64
+
+#### repeat_each
+在 run_test 之前调用这个函数带上一个整形的参数去告诉测试框架去运行指定的重复的请求次数给每一个测试块，当你调用时候没有参数，返回当前设置的值，默认1
+
+#### env_to_nginx
+指定另外的系统环境变量到 nginx 服务器
+例如
+```
+env_to_nginx("foo", "bar=123", "baz=hello world");
+run_tests();
+```
+将会下面的行被插入到由测试框架产生的 nginx.conf 文件
+```
+env foo;
+env bar=123;
+env 'baz=hello world';
+```
+
+下面2行也是一个直接设置值到环境中的例子。你也能直接设置一个值在Perl 上，在 env_to_nginx 之前调用，例如
+```
+$ENV{baz} = 'hello world';
+env_to_nginx("baz");
+```
+如果你也想通过确定的环境到指定的测试用例上，你也可以直接使用 --- main_config 段，例如
+```
+--- main_config
+env foo;
+env bar=123;
+```
+你可以查阅nginx的官方文档关于它的 env 指令
+http://nginx.org/r/env
+默认地，只有下面的环境变量被通过:
+```
+MOCKEAGAIN_VERBOSE
+MOCKEAGAIN
+MOCKEAGAIN_WRITE_TIMEOUT_PATTERN
+LD_PRELOAD
+LD_LIBRARY_PATH
+DYLD_INSERT_LIBRARIES
+DYLD_FORCE_FLAT_NAMESPACE
+ASAN_OPTIONS
+```
+
+#### workers
+在 run_tests() 之前调用这个函数来配置 Nginx 的 worker_processes 指令的值，例如：
+```
+workers(2);
+```
+默认是1
+
+#### master_on
+- 在 run_tests() 之前打开 Nginx 主进程
+- 默认地，主进程不被允许执行，除非在 "HUP reload" testing mode 下
+
+#### log_level
+- 在 run_tests() 之前在 Nginx 设置默认的错误 log 过滤器级别
+- 这个全局的设置能被重写通过每一个测试块的--- log_level sections
+默认是 debug
+
+#### check_accum_error_log
+- 用 `--- error_log` 和 `--- no_error_log`  检查积累错误日志通过被 repeat_each 所控制的重复的请求
+
+#### no_root_location
+- 默认地，Nginx 配置文件会被产生通过测试框架自动地生成一个 `location /`。在调用 run_tests() 之前调用这个函数会禁止这个行为
+这样的话测试块能拥有他们自己的 root locations.
+
+#### bail_out
+- 抛出指定的信息后退出整个 test session (不仅仅是当前的测试文件)
+- 这个函数也能做所有必要的清理工作，因此总是使用这个函数而不是调用 ```Test::More::BAIL_OUT()``` 指令
+- 例如
+```
+bail_out("something bad happened!");
+```
+
+#### add_cleanup_handler
+- 注册客户清理句柄给当前的 perl/prove 进程，通过指定一个 Perl 子函数对象作为一个参数
+- 例如：
+```
+add_cleanup_handler(sub {
+    kill INT => $my_own_child_pid;
+    $my_own_socket->close()
+});
+```
+
+#### add_block_preprocessor
+- 增加一个客户 Perl 预处理器给每个测试块通过指定一个 Perl 子函数对象作为一个参数
+- 这个进程子函数总是立即运行在处理测试块之前
+- 这个机制能被用来增加客户字段或者修改存在的一个
+- 例如
+```
+add_block_preprocessor(sub {
+    my $block = shift;
+
+    # use "--- req_headers" for "--- more_Headers":
+    $block->set_value("more_headers", $block->req_headers);
+
+    # initialize external dependencies like memcached services here...
+});
+```
+
+#### add_response_body_check
+- 为测试相应体增加客户检查通过指定一个 Perl 子函数对象作为一个参数
+- 下面是一个做 HTML 标题检查的一个例子
+```
+add_response_body_check(sub {
+        my ($block, $body, $req_idx, $repeated_req_idx, $dry_run) = @_;
+
+        my $name = $block->name;
+        my $expected_title = $block->resp_title;
+
+        if ($expected_title && !ref $expected_title) {
+            $expected_title =~ s/^\s*|\s*$//gs;
+        }
+
+        if (defined $expected_title) {
+            SKIP: {
+                skip "$name - resp_title - tests skipped due to $dry_run", 1 if $dry_run;
+
+                my $title;
+                if ($body =~ m{<\s*title\s*>\s*(.*?)<\s*/\s*title\s*>}) {
+                    $title = $1;
+                    $title =~ s/\s*$//s;
+                }
+
+                is_str($title, $expected_title,
+                       "$name - resp_title (req $repeated_req_idx)" );
+            }
+        }
+    });
+```
+
+#### is_str
+- 执行智能的字符串比较子测试
+
+## Sections supported
+下面的 sections 将会被支持
+
+#### config
+这段的内容将会被包含在 产生的 config 文件里的 “server” 部分，这一部分是想要防止 “location” 指定来使能你想要测试的模块
+```
+location /echo {
+    echo_before_body hello;
+    echo world;
+}
+```
+- 有时候你不想要打扰复制10次相同的配置文件给10个你想要运行的模块。一种方法是只为在你的 `.t` 文件中第一个测试文件写配置字段.
+所有的子请求测试将会重用相同的 config。请注意着依赖于测试的顺序，所以你运行 `prove` 带有变量 EST_NGINX_NO_SHUFFLE=1
+- 请注意配置字段通过环境变量扩展来启动 TEST_NGINX。因此下面是一个完美的声明(提供 TEST_NGINX_HTML_DIR 是正确地设置)
+```
+location /main {
+    echo_subrequest POST /sub -f $TEST_NGINX_HTML_DIR/blah.txt;
+}
+```
+
+#### http_config
+这个段的内容将会被包含在产生的 config 文件中的 http 部分。这个位置是你想要放置你想要测试的 “upstream” 指令。例如
+
+```
+upstream database {
+    postgres_server     127.0.0.1:$TEST_NGINX_POSTGRESQL_PORT
+                        dbname=ngx_test user=ngx_test
+                        password=wrong_pass;
+}
+```
+这个部分通过环境变量扩展 (variables have to start with TEST_NGINX)
+
+#### main_config
+- 这部分的内容将会被包含在 产生的 config 文件的 “main” 部分。这是很少被使用的，除了你要特使nginx内核。 所有在 `---main_config` 将会被自动产生放置在 http {} 块之前
+- 这个部分通过环境变量扩展(变量随着 TEST_NGINX 启动)
+
+#### post_main_config
+和 main_config 相似，但内容在 `http{}` 之后
+
+#### server_name
+指定一个客户服务器名字(通过 "server_name" nginx 配置指定)给当前的测试块。默认是“localhost”
+
+#### init
+运行 Perl 指定代码的一个片段作为 `--- init` section 的内容在运行测试块之前。注意着只会运行一次在 **所有** 的测试块的重复请求之前
+
+#### request
+这可能是一个最重要 section。它定义了一个你打算发送给 nginx server 的 request。它提供了一个强大的语法我们在一次处理一个例子
+在这个最基础的表格，这个 section 看起来像这样：
+```
+--- request
+GET
+```
+- 这将会用 GET 请求服务器的 root(i.e./)，使用 HTTP/1.1
+- 当然，你可能想要测试其他的东西，使用不同的 HTTP 版本
+```
+--- request
+GET /foo HTTP/1.0
+```
+请注意指定 HTTP/1.0 将不会从发送 Host Header 保护 Test::Nginx。事实上 Test::Nginx 总是发送2个 headers: Host 和 connection
+
+你也能增加一个内容到你的测试
+ ```
+--- request
+POST /foo
+Hello world
+ ```
+- Test::Nginx 将会自动计算内容长度和为你增加响应头。
+- 这就是说，一旦你想 POST 真是的数据，你将会对使用 more_headers section 和使用 Test::Base filters 去 url 编码你发送的内容很感兴趣。
+```
+--- more_headers
+Content-type: application/x-www-form-urlencoded
+--- request eval
+use URI::Escape;
+"POST /rrd/foo
+value=".uri_escape("N:12345")
+```
+有时候比一个测试比一个 request 更多，典型是你想要POST一些数据和确定数据用 GET 带到了一个 account，你能用使用这种方式
+```
+--- request eval
+["POST /users
+name=foo", "GET /users/foo"]
+```
+当你开发一个漂亮的 nginx 模块你会最终想使用 buffers and "weird" network conditions 来测试东西。这里就是你分割你的 request 到网络包的地方
+```
+--- request eval
+[["POST /users\nna", "me=foo"]]
+```
+这里 Test::Nginx 将会首先发送 request line，这个头部他会自动为你加入，然后会发送下一个包 (here it's "me=foo")。当我们讨论包的时候，这不是真正准确的由于没有产生 TCP/IP 行为， Test::Nginx 能保证的是会造成两次 syswrite 调用。
+
+一个好的方法是在发送第二个包之前确保两个调用导致在2个包之间有延时 (2s)
+```
+--- request eval
+[["POST /users\nna", {value => "me=foo", delay_before => 2}]]
+```
+
+当然了，所有都能被联合起来
+```
+--- request eval
+use URI::Escape;
+my $val="value=".uri_escape("N:12346");
+[["POST /rrd/foo
+".substr($val, 0, 6),
+{value => substr($val, 6, 5), delay_before=>5},
+substr($val, 11)],  "GET /rrd/foo"]
+```
+增加一个注释在 request 之前也被支持
+```
+--- request
+# this request contains the URI args
+# "foo" and "bar":
+GET /api?foo=1&bar=2
+```
+
+#### request_eval
+
+使用这个字段是过时的，测试的时候必须要替换成 request 字段用 eval 过滤器
+```
+--- request_eval
+"POST /echo_body
+hello\x00\x01\x02
+world\x03\x04\xff"
+```
+应该被替换成
+```
+--- request eval
+"POST /echo_body
+hello\x00\x01\x02
+world\x03\x04\xff"
+```
+
+#### pipelined_requests
+- 指定 pipelined requests使用 keep-alive connection to the server.
+- 这是 ngx_lua 的测试套件
+```
+=== TEST 7: discard body
+--- config
+    location = /foo {
+        content_by_lua '
+            ngx.req.discard_body()
+            ngx.say("body: ", ngx.var.request_body)
+        ';
+    }
+    location = /bar {
+        content_by_lua '
+            ngx.req.read_body()
+            ngx.say("body: ", ngx.var.request_body)
+        ';
+    }
+--- pipelined_requests eval
+["POST /foo
+hello, world",
+"POST /bar
+hiya, world"]
+--- response_body eval
+["body: nil\n",
+"body: hiya, world\n"]
+```
+
+#### more_headers
+增加 section 的内容走位 headers 给请求来发送
+```
+--- more_headers
+X-Foo: blah
+```
+这将会增加 X-Foo: blah 到请求
+
+#### curl
+当这个字段被指定的时候，测试框架会尝试产生一个 curl 命令行给首个测试请求
+例如
+```
+--- request
+GET /foo/bar?baz=3
+
+--- more_headers
+X-Foo: 3
+User-Agent: openresty
+
+--- curl
+```
+当运行这个测试块的时候将会产生下面的行（到 stderr）
+```
+# curl -i -H 'X-Foo: 3' -A openresty 'http://127.0.0.1:1984/foo/bar?baz=3'
+```
+你需要记住去设置环境变量 TEST_NGINX_NO_CLEAN 1 从自动退出中去保护 nginx 和其他进程
+
+```
+response_body
+...
+...
+...
+
+这部分还没有翻译
+```
+
+
+#### user_files
+这个部分你会创建一个文件，在下面的测试中它会被复制到 nginx server 的 html 目录下。
+```
+--- user_files
+>>> blah.txt
+Hello, world
+```
+- 将会创建一个名字是 blah.txt 在 nginx server 的 html 目录下，这个文件将会包含文本 “Hello, world”
+- 多文件也被支持
+```
+--- user_files
+>>> foo.txt
+Hello, world!
+>>> bar.txt
+Hello, heaven!
+```
+最后一次修改的选项也被支持
+```
+--- user_files
+>>> blah.txt 199801171935.33
+Hello, world
+```
+也能指定Perl 数据结构给用户文件然后创建
+```
+--- user_files eval
+[
+    [ "foo.txt" => "Hello, world!", 199801171935.33 ],
+    [ "bar.txt" => "Hello, heaven!" ],
+]
+```
+
+#### skip_eval
+- 跳过自测试指定的数目（当前的测试块），如果运行 Perl 代码片段的结果是 true 的话
+- 这个 section 的格式是
+```
+--- skip_eval
+<subtest-count>: <perl-code>
+```
+例如，跳过3个子测试，当目前操作系统不是 Linux 的时候
+```
+--- skip_eval
+3: $^O ne 'linux'
+```
+或者等价于
+```
+--- skip_eval: 3: $^O ne 'linux'
+```
+
+#### skip_nginx
+- 跳过指定的子测试数目（当前的测试块）对于指定的 nginx 版本范围
+- 这个 section 的格式是
+```
+--- skip_nginx
+<subtest-count>: <op> <version>
+```
+<subtest-count> 这个值必须是一个正整数。<op> 可以是 >, >=, <, or <= ，<version> 也是一个有效的版本数字 像 1.0.2
+一个例子是
+```
+=== TEST 1: sample
+--- config
+    location /t { echo hello; }
+--- request
+    GET /t
+--- response_body
+--- skip_nginx
+2: < 0.8.54
+```
+- 在 nginx 版本老于 0.8.54 的时候跳过2个子测试
+- skip_nginx section 只允许你指定一个boolean表达式作为skip条件，如果你想要使用两个 Boolean 表达式，你应该使用 skip_nginx2 section 来代替
+
+#### skip_nginx2
+- 这个 section 和 skip_nginx 很像，但是跳过的条件是由两个 boolean 表达式组成，加上操作符 and or or
+- 这个 section 的格式是
+```
+--- skip_nginx2
+<subtest-count>: <op> <version> and|or <op> <version>
+```
+例如
+```
+=== TEST 1: sample
+--- config
+    location /t { echo hello; }
+--- request
+    GET /t
+--- response_body
+--- skip_nginx2
+2: < 0.8.53 and >= 0.8.41
+```
+
+#### todo
+格式
+```
+--- todo
+<subtest-count>: <reason>
+```
+<subtest-count> 这个必须是正整数
+<reason> is logged when you run tests with --directives.
