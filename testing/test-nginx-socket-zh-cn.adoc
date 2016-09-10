@@ -440,7 +440,7 @@ hiya, world"]
 ```
 
 #### more_headers
-增加 section 的内容走位 headers 给请求来发送
+增加 section 的内容作为 headers 给请求来发送
 ```
 --- more_headers
 X-Foo: blah
@@ -448,7 +448,8 @@ X-Foo: blah
 这将会增加 X-Foo: blah 到请求
 
 #### curl
-当这个字段被指定的时候，测试框架会尝试产生一个 curl 命令行给首个测试请求
+当这个 section 被指定的时候，测试框架会尝试给这个测试请求产生一个 `curl` 命令行
+
 例如
 ```
 --- request
@@ -460,20 +461,53 @@ User-Agent: openresty
 
 --- curl
 ```
-当运行这个测试块的时候将会产生下面的行（到 stderr）
+当运行这个测试块的时候会产生下面的行（to `stderr`）
 ```
 # curl -i -H 'X-Foo: 3' -A openresty 'http://127.0.0.1:1984/foo/bar?baz=3'
 ```
-你需要记住去设置环境变量 TEST_NGINX_NO_CLEAN 1 从自动退出中去保护 nginx 和其他进程
+你需要记住去设置环境变量 TEST_NGINX_NO_CLEAN 为 1 去保护 nginx 和其他进程防止在测试的时候自动退出  
+
+#### response_body
+请求主体的期望值
 
 ```
-response_body
-...
-...
-...
-
-这部分还没有翻译
+--- response_body
+hello
 ```
+如果这个测试是多行请求，那么response_body **必须** 是一个数组和没一个请求 **必须** 返回一个相应的期望主体
+```
+--- request eval
+["GET /hello", "GET /world"]
+--- response_body eval
+["hello", "world"]
+```
+#### response_body_eval
+这个 section 的用途被弃用，测试时应该用 `request` section 带上 `eval` 过滤器代替它，比如：
+```
+--- response_body_eval
+"hello\x00\x01\x02
+world\x03\x04\xff"
+```
+应该被替换成
+```
+--- response_body eval
+"hello\x00\x01\x02
+world\x03\x04\xff"
+```
+
+#### response_body_like
+这个请求返回的主体 **必须** 要匹配这个 section 提供的模式
+```
+--- response_body_like
+^elapsed 0\.00[0-5] sec\.$
+```
+
+如果这个测试是由多个请求组成，这个 response_body_like **必须** 是一个数组而且每一个请求 **必须** 匹配响应的模式
+
+#### response_body_unlike
+就像 `response_body_like` 一样，但这个测试只有当指定的模式不被匹配真是响应的主体信息的时候才会被通过
+
+
 
 
 #### user_files
@@ -483,8 +517,8 @@ response_body
 >>> blah.txt
 Hello, world
 ```
-- 将会创建一个名字是 blah.txt 在 nginx server 的 html 目录下，这个文件将会包含文本 “Hello, world”
-- 多文件也被支持
+将会创建一个名字是 blah.txt 在 nginx server 的 html 目录下，这个文件将会包含文本 “Hello, world”  
+多文件也被支持
 ```
 --- user_files
 >>> foo.txt
@@ -571,5 +605,6 @@ Hello, world
 --- todo
 <subtest-count>: <reason>
 ```
-<subtest-count> 这个必须是正整数
-<reason> is logged when you run tests with --directives.
+`<subtest-count>` 这个必须是正整数
+
+当你用 --directives 运行测试用例时，`<reason>` 会被记录在日志上
