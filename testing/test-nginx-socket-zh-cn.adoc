@@ -507,8 +507,34 @@ world\x03\x04\xff"
 #### response_body_unlike
 就像 `response_body_like` 一样，但这个测试只有当指定的模式不被匹配真是响应的主体信息的时候才会被通过
 
+#### response_headers
+在这个 section 中被指定的 headers 是通过 nginx 发送的响应体里面
+```
+--- response_headers
+Content-Type: application/x-resty-dbd-stream
+```
+当然，你能在这个 section 中指定更多的 headers
+```
+--- response_headers
+X-Resty-DBD-Module:
+Content-Type: application/x-resty-dbd-stream
+```
+这个测试只有在所有的 headers 在响应体中带上合适的值才会成功  
+
+如果这个测试是由多个请求组成，response_headers **必须** 是一个数组且数组的每一个元素被检查，针对响应和对应的请求
+
+#### response_headers_like
+这个 headers 匹配的值被返回通过 nginx
+```
+--- response_headers_like
+X-Resty-DBD-Module: ngx_drizzle \d+\.\d+\.\d+
+Content-Type: application/x-resty-dbd-stream
+```
+这会检查响应的 `Content-Type` 是 `application/x-resty-dbd-stream` 且 `X-Resty-DBD-Module` 匹配 `ngx_drizzle \d+\.\d+\.\d+`  
 
 
+
+=============================================
 
 #### user_files
 这个部分你会创建一个文件，在下面的测试中它会被复制到 nginx server 的 html 目录下。
